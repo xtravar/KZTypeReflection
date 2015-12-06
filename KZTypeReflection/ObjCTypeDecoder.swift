@@ -33,6 +33,9 @@ public class ObjCTypeDecoder {
 
     //MARK: public interface
     public func typeFromString(string: String) -> Any.Type? {
+        if string == "{?=b8b4b1b1b18[8S]}" {
+            return NSDecimal.self
+        }
         var generator = PeekingGenerator(generator: string.characters.generate())
         return typeFromCharacters(&generator)
     }
@@ -50,8 +53,6 @@ public class ObjCTypeDecoder {
         guard let typeChar = ObjCTypeChar(rawValue: ch) else {
             preconditionFailure("unrecognized type character")
         }
-        
-        
         
         switch(typeChar) {
         case .ID:

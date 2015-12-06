@@ -8,6 +8,15 @@
 
 import Foundation
 
+extension CollectionType {
+    typealias V = Self.Generator.Element
+    func firstObject(@noescape predicate: (V) throws -> Bool) rethrows -> V? {
+        guard let index = try self.indexOf(predicate) else {
+            return nil
+        }
+        return self[index]
+    }
+}
 
 public struct ObjCProperty {
     public let name: String
@@ -36,7 +45,43 @@ public struct ObjCProperty {
 */
 }
 
-
+extension ObjCProperty {
+    public var propertyType: Any.Type {
+        for attr in self.attributes {
+            if case .PropertyType(let type) = attr {
+                return type
+            }
+        }
+        preconditionFailure()
+    }
+    
+    public var getter: Selector {
+        for attr in self.attributes {
+            if case .Getter(let getter) = attr {
+                return getter
+            }
+        }
+        return Selector(self.name)
+    }
+    
+    public var setter: Selector? {
+        for attr in self.attributes {
+            if case .ReadOnly = attr {
+                return nil
+            }
+            
+            if case .Setter(let setter) = attr {
+                return setter
+            }
+        }
+        
+        var chars = self.name.characters
+        let firstChar = chars.popFirst()!
+        
+        
+        return Selector("set" + String(firstChar).capitalizedString + String(chars) + ":")
+    }
+}
 
 internal class ObjCPropertyList : ObjCRuntimeAllocatedList<AnyClass!, objc_property_t> {
     internal init(type: AnyClass) {

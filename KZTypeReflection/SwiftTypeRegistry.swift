@@ -7,8 +7,12 @@
 //
 
 import Foundation
+import KZSwiftBridging
 
+private typealias VoidPointer = UnsafePointer<Void>
 
+public typealias BridgeToConverter = (@convention(block) (inputPointer: UnsafePointer<Void>) -> AnyObject?)
+public typealias BridgeFromConverter = (@convention(block) (input: AnyObject?, outputPointer: UnsafeMutablePointer<Void>) -> Void)
 
 
 public class SwiftTypeRegistry {
@@ -41,6 +45,8 @@ public class SwiftTypeRegistry {
     
     //MARK: instance
     private var registeredTypes = [String: Any.Type]()
+    private var bridgeToObjectiveCConverters = [VoidPointer: BridgeToConverter]()
+    private var bridgeFromObjectiveCConverters = [VoidPointer : BridgeFromConverter]()
     
     private init() {
         // no need to have more than one instance
@@ -50,15 +56,189 @@ public class SwiftTypeRegistry {
         if let retval = self.registeredTypes[name] {
             return retval
         }
-        return NSClassFromString(name)
+        var className = name
+        
+        if name.hasPrefix("Swift.ImplicitlyUnwrappedOptional<") {
+            var chars = name.characters
+            chars = chars.dropFirst("Swift.ImplicitlyUnwrappedOptional<".characters.count)
+            chars = chars.dropLast()
+            className = String(chars)
+        } else if name.hasPrefix("Swift.Optional<") {
+            var chars = name.characters
+            chars = chars.dropFirst("Swift.ImplicitlyUnwrappedOptional<".characters.count)
+            chars = chars.dropLast()
+            className = String(chars)
+        }
+        
+        if className.hasPrefix("ObjectiveC.") {
+            className = String(className.characters.dropFirst("ObjectiveC.".characters.count))
+        }
+        return NSClassFromString(className)
         //return self.registeredTypes[name]
     }
 
-    public func registerType<T>(type: T.Type, includeRelated: Bool = true) {
-        for bt in relatedTypesForType(T.self) {
-            let name = SwiftTypeRegistry.typeName(bt)
-            registeredTypes[name] = bt
+    private func registerTypeInner<T>(type: T.Type) {
+        registerTypeOpaque(type)
+    }
+    
+
+    
+    private func registerTypeInner<T : NSValueWrappable>(type: Optional<T>.Type) {
+        registerTypeOpaque(type)
+        registerBridge(type,
+            
+            bridgeTo: {
+                let value : T? = $0
+                return value?.toNSValue()
+            
+        },
+            bridgeFrom: {
+                return T?(optionalValue: $0 as! NSValue?)
+        })
+    }
+    
+    private func registerTypeInner<T : NSValueWrappable>(type: ImplicitlyUnwrappedOptional<T>.Type) {
+        registerTypeOpaque(type)
+        registerBridge(type,
+            
+            bridgeTo: {
+                let value : T? = $0
+                return value?.toNSValue()
+                
+            },
+            bridgeFrom: {
+                return T?(optionalValue: $0 as! NSValue?)
+        })
+    }
+    
+    private func registerTypeInner<T: _ObjectiveCBridgeable>(type: T.Type) {
+        registerTypeOpaque(type)
+        registerBridge(type, bridgeTo: { return $0._bridgeToObjectiveC() as? NSObject },
+            bridgeFrom: {
+                var retval: T? = nil
+                let obj = $0 as! T._ObjectiveCType
+                T._forceBridgeFromObjectiveC(obj, result: &retval)
+                return retval!
+        })
+    }
+    
+    private func registerTypeInner<T: _ObjectiveCBridgeable>(type: Optional<T>.Type) {
+        registerTypeOpaque(type)
+        registerBridge(type,
+            bridgeTo: {
+                if case .Some(let value) = $0 {
+                    return value._bridgeToObjectiveC() as? NSObject
+                }
+                return nil
+            },
+            bridgeFrom: {
+                if $0 == nil {
+                    return nil
+                }
+                var retval: T? = nil
+                let obj = $0 as! T._ObjectiveCType
+                T._forceBridgeFromObjectiveC(obj, result: &retval)
+                return retval
+        })
+    }
+    
+    public func registerBridge<T, O: NSObject>(type: T.Type, bridgeTo:((T) -> O?), bridgeFrom: ((O?) -> T)) {
+        let typePtr = unsafeBitCast(type, UnsafePointer<Void>.self)
+        
+        bridgeToObjectiveCConverters[typePtr] = {(inputPointer: UnsafePointer<Void>) -> NSObject? in
+            let x = bridgeTo(UnsafePointer<T>(inputPointer).memory) as! NSObject
+            return x
         }
+        
+        bridgeFromObjectiveCConverters[typePtr] = {(input: AnyObject?, outputPointer: UnsafeMutablePointer<Void>) in
+            let outPtr = UnsafeMutablePointer<T>(outputPointer)
+            let x = bridgeFrom(input as? O)
+            outPtr.memory = x
+        }
+    }
+    
+    
+    public func registerType<T>(type: T.Type, includeRelated: Bool = true) {
+        registerTypeInner(type)
+        if !includeRelated {
+            return
+        }
+        
+        typealias arrayType = [T]
+        registerTypeInner(arrayType)
+        
+        typealias arrayTypeq = [T]?
+        registerTypeInner(arrayTypeq)
+        
+        typealias arrayTypeQ = [T]!
+        registerTypeInner(arrayTypeQ)
+        
+        typealias dictType = [String: T]
+        registerTypeInner(dictType)
+        
+        typealias dictTypeq = [String: T]?
+        registerTypeInner(dictTypeq)
+        
+        typealias dictTypeQ = [String: T]!
+        registerTypeInner(dictTypeQ)
+        
+        typealias qT = T?
+        registerTypeInner(qT)
+        
+        typealias QT = T!
+        registerTypeInner(QT)
+        
+        typealias pT = UnsafeMutablePointer<T>
+        registerTypeInner(pT)
+        
+        typealias mt = T.Type
+        registerTypeInner(mt)
+    }
+    
+    public func registerType<T: Hashable>(type: T.Type, includeRelated: Bool = true) {
+        registerTypeInner(type)
+        if !includeRelated {
+            return
+        }
+        
+        typealias arrayType = [T]
+        registerTypeInner(arrayType)
+        
+        typealias arrayTypeq = [T]?
+        registerTypeInner(arrayTypeq)
+        
+        typealias arrayTypeQ = [T]!
+        registerTypeInner(arrayTypeQ)
+        
+        typealias setType = Set<T>
+        registerTypeInner(setType)
+        
+        typealias setTypeq = Set<T>?
+        registerTypeInner(setTypeq)
+        
+        typealias setTypeQ = Set<T>!
+        registerTypeInner(setTypeQ)
+        
+        typealias dictType = [String: T]
+        registerTypeInner(dictType)
+        
+        typealias dictTypeq = [String: T]?
+        registerTypeInner(dictTypeq)
+        
+        typealias dictTypeQ = [String: T]!
+        registerTypeInner(dictTypeQ)
+        
+        typealias qT = T?
+        registerTypeInner(qT)
+        
+        typealias QT = T!
+        registerTypeInner(QT)
+        
+        typealias pT = UnsafeMutablePointer<T>
+        registerTypeInner(pT)
+        
+        typealias mt = T.Type
+        registerTypeInner(mt)
     }
     
     public func registerTypeOpaque(type: Any.Type) {
@@ -81,39 +261,21 @@ public class SwiftTypeRegistry {
         _stdlib_getDemangledMetatypeNameImpl(type, qualified: qualified, &retval)
         return retval
     }
+    
+    public func bridgeToObjectiveC(type: Any.Type, inputPointer: UnsafePointer<Void>) -> AnyObject? {
+        let typePtr = unsafeBitCast(type, UnsafePointer<Void>.self)
+        let converter = self.bridgeToObjectiveCConverters[typePtr]!
+        let converted = converter(inputPointer: inputPointer)
+        return converted
+    }
+    
+    public func bridgeFromObjectiveC(type: Any.Type, input: AnyObject?, outputPointer: UnsafeMutablePointer<Void>) {
+        let typePtr = unsafeBitCast(type, UnsafePointer<Void>.self)
+        let converter = self.bridgeFromObjectiveCConverters[typePtr]!
+        converter(input: input, outputPointer: outputPointer)
+    }
 }
 
-
-
-private func relatedTypesForType<T>(type: T.Type) -> [Any.Type] {
-    typealias arrayType = [T]
-    typealias arrayTypeq = [T]?
-    typealias arrayTypeQ = [T]!
-    
-    typealias dictType = [String: T]
-    typealias dictTypeq = [String: T]?
-    typealias dictTypeQ = [String: T]!
-    
-    typealias qT = T?
-    typealias QT = T!
-    typealias pT = UnsafeMutablePointer<T>
-    typealias mt = T.Type
-    
-    return [
-        T.self,
-        arrayType.self,
-        arrayTypeq.self,
-        arrayTypeQ.self,
-        dictType.self,
-        dictTypeq.self,
-        dictTypeQ.self,
-        qT.self,
-        QT.self,
-        pT.self,
-        
-        mt.self
-    ]
-}
 
 
 public extension SwiftTypeRegistry {
@@ -148,6 +310,7 @@ public extension SwiftTypeRegistry {
         registerType(UInt.self)
         registerType(Float.self)
         registerType(Double.self)
+        registerType(NSDecimal.self)
         
 #if arch(i386) || arch(x86_64)
         registerType(Float80.self)
@@ -157,7 +320,4 @@ public extension SwiftTypeRegistry {
         registerType(Void.self)
     }
 }
-
-
-
 

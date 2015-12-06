@@ -15,6 +15,7 @@
 		F711C4681BAE324600022291 /* SwiftOpaqueMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F711C4671BAE324600022291 /* SwiftOpaqueMetadata.swift */; };
 		F711C46A1BAE3F0C00022291 /* SwiftTupleMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F711C4691BAE3F0C00022291 /* SwiftTupleMetadata.swift */; };
 		F72E3FCB1BA7DD6E00A5920E /* SwiftTypeRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72E3FCA1BA7DD6E00A5920E /* SwiftTypeRegistry.swift */; };
+		F74C71351C0A1D6A00337993 /* ObjCTypeEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74C71331C0A010F00337993 /* ObjCTypeEncoder.swift */; };
 		F79558B61BAE4D6D00F663DD /* SwiftClosureMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79558B51BAE4D6D00F663DD /* SwiftClosureMetadata.swift */; };
 		F79558B81BAE516200F663DD /* SwiftProtocolMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79558B71BAE516200F663DD /* SwiftProtocolMetadata.swift */; };
 		F79558BA1BAE598F00F663DD /* SwiftMetatypeMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79558B91BAE598F00F663DD /* SwiftMetatypeMetadata.swift */; };
@@ -26,7 +27,6 @@
 		F79558C61BAE709C00F663DD /* ObjCField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79558C51BAE709C00F663DD /* ObjCField.swift */; };
 		F79558C81BAE71EE00F663DD /* ObjCProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79558C71BAE71EE00F663DD /* ObjCProperty.swift */; };
 		F79558CA1BAF497900F663DD /* SwiftTypeRegistry_DecoderLookups.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79558C91BAF497900F663DD /* SwiftTypeRegistry_DecoderLookups.swift */; };
-		F79558DD1BB11BF200F663DD /* SwiftSymbolParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79558DC1BB11BF200F663DD /* SwiftSymbolParser.swift */; };
 		F7B3F8251B6BE6430080CFAB /* KZTypeReflection.h in Headers */ = {isa = PBXBuildFile; fileRef = F7B3F8241B6BE6430080CFAB /* KZTypeReflection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F7B3F82C1B6BE6430080CFAB /* KZTypeReflection.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F7B3F8211B6BE6430080CFAB /* KZTypeReflection.framework */; };
 		F7B3F8311B6BE6430080CFAB /* KZTypeReflectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B3F8301B6BE6430080CFAB /* KZTypeReflectionTests.swift */; };
@@ -34,9 +34,16 @@
 		F7B3F85A1B6BE8BA0080CFAB /* ObjCTypeDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B3F8591B6BE8BA0080CFAB /* ObjCTypeDecoder.swift */; };
 		F7B3F85D1B6BE8C80080CFAB /* PeekingGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B3F85C1B6BE8C80080CFAB /* PeekingGenerator.swift */; };
 		F7B3F8691B6EB2360080CFAB /* ObjCTypeChar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B3F8681B6EB2360080CFAB /* ObjCTypeChar.swift */; };
-		F7BF50351B9C932B00D878B0 /* SwiftSymbolDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7BF50341B9C932B00D878B0 /* SwiftSymbolDecoder.swift */; };
 		F7E075411B9E716A0009B2BB /* NSScanner_Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E075401B9E716A0009B2BB /* NSScanner_Convenience.swift */; };
 		F7E075431B9E784A0009B2BB /* Punycode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E075421B9E784A0009B2BB /* Punycode.swift */; };
+		F7F939EE1C12881C00CA0E2A /* MachOSymbolTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */; };
+		F7F939F01C128ACE00CA0E2A /* MachOProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */; };
+		F7F939F21C128CC600CA0E2A /* MachOSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939F11C128CC600CA0E2A /* MachOSegment.swift */; };
+		F7F939F41C12955300CA0E2A /* MachOSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939F31C12955300CA0E2A /* MachOSection.swift */; };
+		F7F939F61C12A18200CA0E2A /* MachOBindEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939F51C12A18200CA0E2A /* MachOBindEntry.swift */; };
+		F7F939F71C13504B00CA0E2A /* SwiftSymbolDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7BF50341B9C932B00D878B0 /* SwiftSymbolDecoder.swift */; };
+		F7F93A051C137F9800CA0E2A /* SwiftMachOSymbolScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F93A041C137F9800CA0E2A /* SwiftMachOSymbolScanner.swift */; };
+		F7F93A071C1387B800CA0E2A /* SwiftSymbolDecoderUnsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F93A061C1387B800CA0E2A /* SwiftSymbolDecoderUnsafe.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +65,7 @@
 		F711C4671BAE324600022291 /* SwiftOpaqueMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftOpaqueMetadata.swift; sourceTree = "<group>"; };
 		F711C4691BAE3F0C00022291 /* SwiftTupleMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftTupleMetadata.swift; sourceTree = "<group>"; };
 		F72E3FCA1BA7DD6E00A5920E /* SwiftTypeRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftTypeRegistry.swift; sourceTree = "<group>"; };
+		F74C71331C0A010F00337993 /* ObjCTypeEncoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjCTypeEncoder.swift; sourceTree = "<group>"; };
 		F79558B51BAE4D6D00F663DD /* SwiftClosureMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftClosureMetadata.swift; sourceTree = "<group>"; };
 		F79558B71BAE516200F663DD /* SwiftProtocolMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftProtocolMetadata.swift; sourceTree = "<group>"; };
 		F79558B91BAE598F00F663DD /* SwiftMetatypeMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftMetatypeMetadata.swift; sourceTree = "<group>"; };
@@ -69,7 +77,6 @@
 		F79558C51BAE709C00F663DD /* ObjCField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjCField.swift; sourceTree = "<group>"; };
 		F79558C71BAE71EE00F663DD /* ObjCProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjCProperty.swift; sourceTree = "<group>"; };
 		F79558C91BAF497900F663DD /* SwiftTypeRegistry_DecoderLookups.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftTypeRegistry_DecoderLookups.swift; sourceTree = "<group>"; };
-		F79558DC1BB11BF200F663DD /* SwiftSymbolParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftSymbolParser.swift; sourceTree = "<group>"; };
 		F7B3F8211B6BE6430080CFAB /* KZTypeReflection.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KZTypeReflection.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F7B3F8241B6BE6430080CFAB /* KZTypeReflection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KZTypeReflection.h; sourceTree = "<group>"; };
 		F7B3F8261B6BE6430080CFAB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -83,6 +90,19 @@
 		F7BF50341B9C932B00D878B0 /* SwiftSymbolDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SwiftSymbolDecoder.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F7E075401B9E716A0009B2BB /* NSScanner_Convenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSScanner_Convenience.swift; sourceTree = "<group>"; };
 		F7E075421B9E784A0009B2BB /* Punycode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Punycode.swift; sourceTree = "<group>"; };
+		F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSymbolTable.swift; sourceTree = "<group>"; };
+		F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOProtocols.swift; sourceTree = "<group>"; };
+		F7F939F11C128CC600CA0E2A /* MachOSegment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSegment.swift; sourceTree = "<group>"; };
+		F7F939F31C12955300CA0E2A /* MachOSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSection.swift; sourceTree = "<group>"; };
+		F7F939F51C12A18200CA0E2A /* MachOBindEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOBindEntry.swift; sourceTree = "<group>"; };
+		F7F939F81C13576400CA0E2A /* KZMachOSymbolTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KZMachOSymbolTable.h; sourceTree = "<group>"; };
+		F7F939F91C13576400CA0E2A /* KZMachOSymbolTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KZMachOSymbolTable.m; sourceTree = "<group>"; };
+		F7F939FC1C1357AA00CA0E2A /* KZMachOBindEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KZMachOBindEntry.h; sourceTree = "<group>"; };
+		F7F939FD1C1357AA00CA0E2A /* KZMachOBindEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KZMachOBindEntry.m; sourceTree = "<group>"; };
+		F7F939FE1C1357AA00CA0E2A /* KZMachOSegment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KZMachOSegment.h; sourceTree = "<group>"; };
+		F7F939FF1C1357AA00CA0E2A /* KZMachOSegment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KZMachOSegment.m; sourceTree = "<group>"; };
+		F7F93A041C137F9800CA0E2A /* SwiftMachOSymbolScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftMachOSymbolScanner.swift; sourceTree = "<group>"; };
+		F7F93A061C1387B800CA0E2A /* SwiftSymbolDecoderUnsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftSymbolDecoderUnsafe.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,11 +148,13 @@
 				F7B3F85B1B6BE8C00080CFAB /* Internal */,
 				F7B3F84E1B6BE77B0080CFAB /* ObjC */,
 				F7B3F84D1B6BE76C0080CFAB /* Swift */,
+				F7F939EC1C1287DA00CA0E2A /* MachO */,
 				F72E3FCA1BA7DD6E00A5920E /* SwiftTypeRegistry.swift */,
 				F79558C91BAF497900F663DD /* SwiftTypeRegistry_DecoderLookups.swift */,
 				F7BF50341B9C932B00D878B0 /* SwiftSymbolDecoder.swift */,
-				F79558DC1BB11BF200F663DD /* SwiftSymbolParser.swift */,
+				F7F93A061C1387B800CA0E2A /* SwiftSymbolDecoderUnsafe.swift */,
 				F7B3F8591B6BE8BA0080CFAB /* ObjCTypeDecoder.swift */,
+				F74C71331C0A010F00337993 /* ObjCTypeEncoder.swift */,
 				F7B3F8241B6BE6430080CFAB /* KZTypeReflection.h */,
 				F7B3F8261B6BE6430080CFAB /* Info.plist */,
 			);
@@ -191,6 +213,25 @@
 			name = Internal;
 			sourceTree = "<group>";
 		};
+		F7F939EC1C1287DA00CA0E2A /* MachO */ = {
+			isa = PBXGroup;
+			children = (
+				F7F939FC1C1357AA00CA0E2A /* KZMachOBindEntry.h */,
+				F7F939FD1C1357AA00CA0E2A /* KZMachOBindEntry.m */,
+				F7F939FE1C1357AA00CA0E2A /* KZMachOSegment.h */,
+				F7F939FF1C1357AA00CA0E2A /* KZMachOSegment.m */,
+				F7F939F81C13576400CA0E2A /* KZMachOSymbolTable.h */,
+				F7F939F91C13576400CA0E2A /* KZMachOSymbolTable.m */,
+				F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */,
+				F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */,
+				F7F939F11C128CC600CA0E2A /* MachOSegment.swift */,
+				F7F939F31C12955300CA0E2A /* MachOSection.swift */,
+				F7F939F51C12A18200CA0E2A /* MachOBindEntry.swift */,
+				F7F93A041C137F9800CA0E2A /* SwiftMachOSymbolScanner.swift */,
+			);
+			name = MachO;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -247,7 +288,7 @@
 		F7B3F8181B6BE6430080CFAB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0700;
+				LastSwiftUpdateCheck = 0710;
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Mike Kasianowicz";
 				TargetAttributes = {
@@ -300,20 +341,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F74C71351C0A1D6A00337993 /* ObjCTypeEncoder.swift in Sources */,
 				F711C4681BAE324600022291 /* SwiftOpaqueMetadata.swift in Sources */,
 				F7E075411B9E716A0009B2BB /* NSScanner_Convenience.swift in Sources */,
 				F711C4641BAE306100022291 /* SwiftStructMetadata.swift in Sources */,
-				F7BF50351B9C932B00D878B0 /* SwiftSymbolDecoder.swift in Sources */,
 				F7B3F8581B6BE88D0080CFAB /* ObjCPropertyAttribute.swift in Sources */,
+				F7F939F61C12A18200CA0E2A /* MachOBindEntry.swift in Sources */,
+				F7F93A071C1387B800CA0E2A /* SwiftSymbolDecoderUnsafe.swift in Sources */,
 				F79558C21BAE6B8600F663DD /* ObjCClass.swift in Sources */,
 				F79558BA1BAE598F00F663DD /* SwiftMetatypeMetadata.swift in Sources */,
+				F7F939F41C12955300CA0E2A /* MachOSection.swift in Sources */,
+				F7F93A051C137F9800CA0E2A /* SwiftMachOSymbolScanner.swift in Sources */,
 				F79558C41BAE6C1E00F663DD /* ObjCMethod.swift in Sources */,
 				F711C4601BADEA7300022291 /* SwiftClassMetadata.swift in Sources */,
 				F72E3FCB1BA7DD6E00A5920E /* SwiftTypeRegistry.swift in Sources */,
+				F7F939F71C13504B00CA0E2A /* SwiftSymbolDecoder.swift in Sources */,
 				F711C45E1BACE09200022291 /* NominalTypeDescriptor.swift in Sources */,
+				F7F939F21C128CC600CA0E2A /* MachOSegment.swift in Sources */,
 				F711C46A1BAE3F0C00022291 /* SwiftTupleMetadata.swift in Sources */,
 				F7B3F8691B6EB2360080CFAB /* ObjCTypeChar.swift in Sources */,
+				F7F939F01C128ACE00CA0E2A /* MachOProtocols.swift in Sources */,
 				F79558CA1BAF497900F663DD /* SwiftTypeRegistry_DecoderLookups.swift in Sources */,
+				F7F939EE1C12881C00CA0E2A /* MachOSymbolTable.swift in Sources */,
 				F79558B61BAE4D6D00F663DD /* SwiftClosureMetadata.swift in Sources */,
 				F79558C61BAE709C00F663DD /* ObjCField.swift in Sources */,
 				F7B3F85A1B6BE8BA0080CFAB /* ObjCTypeDecoder.swift in Sources */,
@@ -325,7 +374,6 @@
 				F79558B81BAE516200F663DD /* SwiftProtocolMetadata.swift in Sources */,
 				F79558C01BAE65C500F663DD /* CommonTypeDescriptor.swift in Sources */,
 				F711C4661BAE318F00022291 /* SwiftEnumMetadata.swift in Sources */,
-				F79558DD1BB11BF200F663DD /* SwiftSymbolParser.swift in Sources */,
 				F79558BE1BAE5C4000F663DD /* SwiftEphemeralMetatypeMetadata.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

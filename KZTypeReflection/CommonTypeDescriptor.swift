@@ -41,7 +41,7 @@ public class CommonTypeDescriptor {
     let pointer: UnsafePointer<InstanceStructure>
     
     init(typePointer: UnsafePointer<Void>) {
-        self.pointer = UnsafePointer<UnsafePointer<InstanceStructure>>(typePointer - 8).memory
+        self.pointer = UnsafePointer<UnsafePointer<InstanceStructure>>(typePointer - sizeof(Int.self)).memory
     }
     
     

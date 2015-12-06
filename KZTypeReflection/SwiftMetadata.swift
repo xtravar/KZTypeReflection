@@ -8,11 +8,28 @@
 
 import Foundation
 
+// solid base protocol
 public protocol SwiftMetadata {
     init(type: Any.Type)
     init(voidPointer: UnsafePointer<Void>)
 
     var voidPointer: UnsafePointer<Void> { get }
+}
+
+extension SwiftMetadata {
+    public var hashValue: Int { get { return voidPointer.hashValue } }
+}
+
+public func ==<T: SwiftMetadata, U: SwiftMetadata>(lhs: T, rhs: U) -> Bool {
+    return lhs.voidPointer == rhs.voidPointer
+}
+
+public func ~=(pattern: SwiftMetadata, predicate: SwiftMetadata) -> Bool {
+    return pattern.voidPointer == predicate.voidPointer
+}
+
+public func ~=(pattern: Any.Type, predicate: Any.Type) -> Bool {
+    return unsafeBitCast(pattern, UnsafePointer<Int>.self) == unsafeBitCast(predicate, UnsafePointer<Int>.self)
 }
 
 public extension SwiftMetadata {
@@ -80,8 +97,8 @@ public protocol SwiftMetadataInstanceStructure {
     var headerValue: Int { get }
 }
 
-// the real metadata - but it has generics
-public protocol _SwiftMetadata : SwiftMetadata {
+// the real metadata that is actually inherited from
+public protocol _SwiftMetadata : SwiftMetadata, Hashable {
     typealias InstanceStructure: SwiftMetadataInstanceStructure
     var pointer: UnsafePointer<InstanceStructure> { get }
     init(pointer: UnsafePointer<InstanceStructure>)

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum ObjCTypeChar : Character {
+public enum ObjCTypeChar : Character, CustomStringConvertible {
     case ID  = "@"
     case CLASS  = "#"
     case SEL  = ":"
@@ -40,44 +40,62 @@ public enum ObjCTypeChar : Character {
     case VECTOR  = "!"
     case CONST  = "r"
     
+    public var asString: String { return String(self.rawValue)}
+    
+    public var description: String { return self.asString}
+    
+    
+    
     public func toSwiftType() -> Any.Type {
         switch(self) {
+        case .ID:
+            return AnyObject.self
+            
         case .CLASS:
             return AnyClass.self
         case .SEL:
             return Selector.self
+            
         case .CHR:
             return Int8.self
         case .UCHR:
             return UInt8.self
+            
         case .SHT:
             return Int16.self
         case .USHT:
             return UInt16.self
+            
         case .INT:
             return Int32.self
         case .UINT:
             return UInt32.self
+            
         case .LNG_LNG:
             return Int64.self
         case .ULNG_LNG:
             return UInt64.self
+            
         case .LNG:
-            return Int.self
+            return Int32.self
         case .ULNG:
-            return UInt.self
+            return UInt32.self
+            
         case .FLT:
             return Float.self
         case .DBL:
             return Double.self
+            
         case .BOOL:
             return Bool.self
         case .VOID:
             return Void.self
+            
         case .CHARPTR:
             return UnsafeMutablePointer<Int8>.self
+            
         default:
-            preconditionFailure("Basic type not supported")
+            preconditionFailure("Basic type \(self.rawValue) not supported")
         }
     }
 }

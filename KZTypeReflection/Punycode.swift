@@ -173,6 +173,14 @@ public class Punycode {
 
 public extension NSScanner {
     public func scanSwiftIdentifier() -> String? {
+        let isPrivate = self.scanString("P")
+        if isPrivate {
+            let part1 = self.scanSwiftIdentifier()
+            let part2 = self.scanSwiftIdentifier()
+            // I presume part1 is a file?
+            return "\(part2) in \(part1)"
+        }
+        
         let isPuny = self.scanString("X")
         guard let charCount = self.scanInteger() else {
             return nil
@@ -183,5 +191,16 @@ public extension NSScanner {
         }
         
         return isPuny ? Punycode.swift.decode(string) : string
+    }
+    
+    public func scanSwiftIdentifierMangled() -> String? {
+        let startIndex = self.scanLocation
+        guard let _ = self.scanSwiftIdentifier() else {
+            return nil
+        }
+        let endIndex = self.scanLocation
+        
+        let nsstring = self.string as NSString
+        return nsstring.substringWithRange(NSMakeRange(startIndex, endIndex - startIndex))
     }
 }

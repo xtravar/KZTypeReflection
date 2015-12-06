@@ -38,6 +38,10 @@ public struct ObjCClass {
         return retval*/
         return ObjCPropertyList(type: self.type).map{ ObjCProperty(pointer: $0) }
     }
+    
+    public var size: Int {
+        return class_getInstanceSize(type)
+    }
 }
 
 
@@ -49,7 +53,6 @@ internal class ObjCRuntimeAllocatedList<T, E> : CollectionType {
     internal let elements: UnsafeBufferPointer<E>
     
     internal subscript (position: Int) -> E {
-        //print(self.elements[position])
         return self.elements[position]
     }
     

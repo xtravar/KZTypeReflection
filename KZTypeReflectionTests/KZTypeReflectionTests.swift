@@ -21,6 +21,15 @@ class KZTypeReflectionTests: XCTestCase {
         super.tearDown()
     }
     
+    func testEncodeCGPoint() {
+        let string = ObjCTypeEncoder.sharedEncoder.encode(CGPoint.self)
+        XCTAssert(string == "{CGPoint=dd}")
+    }
+    
+    func testEncodingCGRect() {
+        let string = ObjCTypeEncoder.sharedEncoder.encode(CGRect.self)
+        XCTAssert(string == "{CGRect={CGPoint=dd}{CGSize=dd}}")
+    }
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
