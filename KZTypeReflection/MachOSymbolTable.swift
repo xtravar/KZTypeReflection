@@ -50,7 +50,7 @@ public class MachOSymbolTable {
     var externalSymbolsByName = [String: Int]()
     var undefinedSymbolsByName = [String: Int]()
     
-    let vmOffset: Int
+    public var onlySwiftSymbols = false
     
     convenience public init?() {
         self.init(address:unsafeBitCast(MachOSymbolTable.self, UnsafePointer<Void>.self))
@@ -75,20 +75,26 @@ public class MachOSymbolTable {
     }
     
     convenience public init(dlinfo: dl_info) {
-        self.init(baseAddress: dlinfo.dli_fbase, vmOffset: 0)
+        self.init(baseAddress: dlinfo.dli_fbase)
     }
     
-    public init(baseAddress: UnsafePointer<Void>, vmOffset: Int) {
+    public init(baseAddress: UnsafePointer<Void>) {
         self.moduleName = ""
         self.baseOffset = baseAddress
-        self.vmOffset = vmOffset
+        
         let magic = UnsafePointer<UInt32>(self.baseOffset).memory
         if magic == mach_header.magicValue {
             self.is64 = false
-            self.readImage(mach_header.self)
         } else {
             self.is64 = true
+        }
+    }
+    
+    public func load() {
+        if self.is64 {
             self.readImage(mach_header_64.self)
+        } else {
+            self.readImage(mach_header.self)
         }
     }
     
@@ -106,7 +112,7 @@ public class MachOSymbolTable {
         
         var cmdPtr = UnsafePointer<Int8>(offset)
         
-        for i in 0 ..< numberOfCommands {
+        for _ in 0 ..< numberOfCommands {
             let cmd = UnsafePointer<load_command>(cmdPtr).memory
             
             switch(unsafeBitCast(cmd.cmd, Int32.self)) {
@@ -300,6 +306,12 @@ public class MachOSymbolTable {
         let ptr = self.stringTable + Int(offset)
         if ptr >= self.stringTableEnd {
             return nil
+        }
+        
+        if onlySwiftSymbols {
+            if strncmp(ptr, "__T", 3) != 0 {
+                return nil
+            }
         }
         return String.fromCString(ptr)
     }

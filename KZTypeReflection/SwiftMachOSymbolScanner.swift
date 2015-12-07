@@ -27,13 +27,14 @@ public class SwiftMachoOSymbolScanner {
 
             let imageHeader = _dyld_get_image_header(i)
             let offset = _dyld_get_image_vmaddr_slide(i)
-            let module = MachOSymbolTable(baseAddress: imageHeader, vmOffset: offset)
+            let module = MachOSymbolTable(baseAddress: imageHeader)
+            module.onlySwiftSymbols = true
+            module.load()
             module.forEachSymbol {
                 if $0.hasPrefix("__T") {
                     self.symbolTable[$0] = $1 + offset
                 }
             }
-            
         }
     }
     

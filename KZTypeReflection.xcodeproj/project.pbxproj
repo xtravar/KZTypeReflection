@@ -36,6 +36,7 @@
 		F7B3F8691B6EB2360080CFAB /* ObjCTypeChar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B3F8681B6EB2360080CFAB /* ObjCTypeChar.swift */; };
 		F7E075411B9E716A0009B2BB /* NSScanner_Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E075401B9E716A0009B2BB /* NSScanner_Convenience.swift */; };
 		F7E075431B9E784A0009B2BB /* Punycode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E075421B9E784A0009B2BB /* Punycode.swift */; };
+		F7F876A41C154F6000C847AB /* MachPerformanceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F876A31C154F6000C847AB /* MachPerformanceTest.swift */; };
 		F7F939EE1C12881C00CA0E2A /* MachOSymbolTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */; };
 		F7F939F01C128ACE00CA0E2A /* MachOProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */; };
 		F7F939F21C128CC600CA0E2A /* MachOSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939F11C128CC600CA0E2A /* MachOSegment.swift */; };
@@ -90,17 +91,12 @@
 		F7BF50341B9C932B00D878B0 /* SwiftSymbolDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SwiftSymbolDecoder.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F7E075401B9E716A0009B2BB /* NSScanner_Convenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSScanner_Convenience.swift; sourceTree = "<group>"; };
 		F7E075421B9E784A0009B2BB /* Punycode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Punycode.swift; sourceTree = "<group>"; };
+		F7F876A31C154F6000C847AB /* MachPerformanceTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachPerformanceTest.swift; sourceTree = "<group>"; };
 		F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSymbolTable.swift; sourceTree = "<group>"; };
 		F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOProtocols.swift; sourceTree = "<group>"; };
 		F7F939F11C128CC600CA0E2A /* MachOSegment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSegment.swift; sourceTree = "<group>"; };
 		F7F939F31C12955300CA0E2A /* MachOSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSection.swift; sourceTree = "<group>"; };
 		F7F939F51C12A18200CA0E2A /* MachOBindEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOBindEntry.swift; sourceTree = "<group>"; };
-		F7F939F81C13576400CA0E2A /* KZMachOSymbolTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KZMachOSymbolTable.h; sourceTree = "<group>"; };
-		F7F939F91C13576400CA0E2A /* KZMachOSymbolTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KZMachOSymbolTable.m; sourceTree = "<group>"; };
-		F7F939FC1C1357AA00CA0E2A /* KZMachOBindEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KZMachOBindEntry.h; sourceTree = "<group>"; };
-		F7F939FD1C1357AA00CA0E2A /* KZMachOBindEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KZMachOBindEntry.m; sourceTree = "<group>"; };
-		F7F939FE1C1357AA00CA0E2A /* KZMachOSegment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KZMachOSegment.h; sourceTree = "<group>"; };
-		F7F939FF1C1357AA00CA0E2A /* KZMachOSegment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KZMachOSegment.m; sourceTree = "<group>"; };
 		F7F93A041C137F9800CA0E2A /* SwiftMachOSymbolScanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftMachOSymbolScanner.swift; sourceTree = "<group>"; };
 		F7F93A061C1387B800CA0E2A /* SwiftSymbolDecoderUnsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftSymbolDecoderUnsafe.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -165,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				F7B3F8301B6BE6430080CFAB /* KZTypeReflectionTests.swift */,
+				F7F876A31C154F6000C847AB /* MachPerformanceTest.swift */,
 				F7B3F8321B6BE6430080CFAB /* Info.plist */,
 			);
 			path = KZTypeReflectionTests;
@@ -216,12 +213,6 @@
 		F7F939EC1C1287DA00CA0E2A /* MachO */ = {
 			isa = PBXGroup;
 			children = (
-				F7F939FC1C1357AA00CA0E2A /* KZMachOBindEntry.h */,
-				F7F939FD1C1357AA00CA0E2A /* KZMachOBindEntry.m */,
-				F7F939FE1C1357AA00CA0E2A /* KZMachOSegment.h */,
-				F7F939FF1C1357AA00CA0E2A /* KZMachOSegment.m */,
-				F7F939F81C13576400CA0E2A /* KZMachOSymbolTable.h */,
-				F7F939F91C13576400CA0E2A /* KZMachOSymbolTable.m */,
 				F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */,
 				F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */,
 				F7F939F11C128CC600CA0E2A /* MachOSegment.swift */,
@@ -383,6 +374,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F7B3F8311B6BE6430080CFAB /* KZTypeReflectionTests.swift in Sources */,
+				F7F876A41C154F6000C847AB /* MachPerformanceTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
