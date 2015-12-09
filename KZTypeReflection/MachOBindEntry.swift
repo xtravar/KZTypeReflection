@@ -158,7 +158,7 @@ private extension NSInputStream {
             }
             
             shift += 7
-            precondition(bits < 64, "encoded int too long")
+            precondition(shift < 64, "encoded int too long")
         }
         
         return retval
