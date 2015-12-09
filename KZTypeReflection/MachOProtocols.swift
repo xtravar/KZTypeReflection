@@ -35,7 +35,6 @@ extension mach_header_64 : MachOHeaderType {
 
 //MARK: load command
 public protocol MachOLoadCommandType {
-    static var commandValue: Int32 { get }
 }
 
 //MARK: segment command
@@ -139,46 +138,91 @@ extension dylib_module_64 : MachOModuleType {
 
 
 //MARK: other commands
-extension dylib_command : MachOLoadCommandType {
-    public static let commandValue = LC_LOAD_DYLIB
-}
-
-extension dyld_info_command : MachOLoadCommandType {
-    public static let commandValue = LC_DYLD_INFO
-}
-
-extension symtab_command : MachOLoadCommandType {
-    public static let commandValue = LC_SYMTAB
-}
-
-extension dysymtab_command : MachOLoadCommandType {
-    public static let commandValue = LC_DYSYMTAB
-}
-
-
 
 
 //MARK: nlist
 
 protocol MachONlistType {
     typealias AddressType: UnsignedIntegerType
-    typealias DescType: IntegerType
     
     var n_strx: UInt32 { get }
     var n_type: UInt8 { get } /* type flag, see below */
     var n_sect: UInt8 { get } /* section number or NO_SECT */
-    var n_desc: DescType { get } /* see <mach-o/stab.h> */
+    var n_desc: UInt16 { get } /* see <mach-o/stab.h> */
     var n_value: AddressType { get } /* value of this symbol (or stab offset) */
+}
+
+enum ReferenceType {
+    init(value: UInt16) {
+        switch(Int32(value)) {
+        case REFERENCE_FLAG_UNDEFINED_NON_LAZY:
+            self = UNDEFINED_NON_LAZY
+            break
+            
+        case REFERENCE_FLAG_UNDEFINED_LAZY:
+            self = UNDEFINED_LAZY
+            break
+            
+        case REFERENCE_FLAG_DEFINED:
+            self = DEFINED
+            break
+            
+        case REFERENCE_FLAG_PRIVATE_DEFINED:
+            self = PRIVATE_DEFINED
+            break
+            
+        case REFERENCE_FLAG_PRIVATE_UNDEFINED_NON_LAZY:
+            self = PRIVATE_UNDEFINED_NON_LAZY
+            break
+            
+        case REFERENCE_FLAG_PRIVATE_UNDEFINED_LAZY:
+            self = PRIVATE_UNDEFINED_LAZY
+            break
+            
+        default:
+            self = .Unknown(value: value)
+            break
+        }
+    }
+    case Unknown(value: UInt16)
+    case UNDEFINED_NON_LAZY
+    case UNDEFINED_LAZY
+    case DEFINED
+    case PRIVATE_DEFINED
+    case PRIVATE_UNDEFINED_NON_LAZY
+    case PRIVATE_UNDEFINED_LAZY
+}
+extension MachONlistType {
+    var isExternal: Bool { return n_type & UInt8(N_EXT) != 0 }
+    var isPrivateExternal: Bool { return n_type & UInt8(N_PEXT) != 0 }
+    
+    var symbolType: SymbolType {
+        return SymbolType(value: self.n_type)
+    }
+    
+    var referenceType: ReferenceType {
+        return ReferenceType(value: self.n_desc & UInt16(REFERENCE_TYPE))
+    }
+    
+    var isReferencedDynamically: Bool {
+        return self.n_desc & UInt16(REFERENCED_DYNAMICALLY) != 0
+    }
+    
+    var libraryOrdinal: Int {
+        return Int(((n_desc) >> 8) & UInt16(0xff))
+    }
+    
+    var isReferenceToWeak: Bool {
+        return self.n_desc & UInt16(N_REF_TO_WEAK) != 0
+    }
 }
 
 extension nlist_real : MachONlistType {
     typealias AddressType = UInt32
-    typealias DescType = Int16
 }
 
 extension nlist_64_real : MachONlistType {
     typealias AddressType = UInt64
-    typealias DescType = UInt16
 }
 
 
@@ -186,7 +230,7 @@ struct nlist_real {
     var n_strx: UInt32	/* index into the string table */
     var n_type: UInt8		/* type flag, see below */
     var n_sect: UInt8		/* section number or NO_SECT */
-    var n_desc: Int16		/* see <mach-o/stab.h> */
+    var n_desc: UInt16		/* see <mach-o/stab.h> */
     var n_value: UInt32	/* value of this symbol (or stab offset) */
 }
 
@@ -198,10 +242,44 @@ struct nlist_64_real {
     var n_value: UInt64      /* value of this symbol (or stab offset) */
 }
 
-
-
-
-
+enum SymbolType {
+    init(value: UInt8) {
+        let type = Int32(value) & N_TYPE
+        switch(type) {
+        case N_UNDF:
+            self = .UNDF
+            return
+        case N_ABS:
+            self = .ABS
+            return
+        case N_SECT:
+            self = .SECT
+            return
+            
+        case N_PBUD:
+            self = .PBUD
+            return
+        case N_INDR:
+            self = .INDR
+            return
+            
+        case 4:
+            self = .FOUR
+            return
+            
+        default:
+            self = .Unknown(value: UInt8(type))
+        }
+    }
+    case Unknown(value: UInt8)
+    case UNDF
+    case ABS
+    case SECT
+    case PBUD
+    case INDR
+    
+    case FOUR // added because wtf
+}
 
 
 

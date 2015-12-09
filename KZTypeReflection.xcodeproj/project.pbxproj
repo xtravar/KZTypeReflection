@@ -37,6 +37,7 @@
 		F7E075411B9E716A0009B2BB /* NSScanner_Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E075401B9E716A0009B2BB /* NSScanner_Convenience.swift */; };
 		F7E075431B9E784A0009B2BB /* Punycode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E075421B9E784A0009B2BB /* Punycode.swift */; };
 		F7F876A41C154F6000C847AB /* MachPerformanceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F876A31C154F6000C847AB /* MachPerformanceTest.swift */; };
+		F7F876AA1C174C9300C847AB /* MachOLinkerCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F876A91C174C9300C847AB /* MachOLinkerCommands.swift */; };
 		F7F939EE1C12881C00CA0E2A /* MachOSymbolTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */; };
 		F7F939F01C128ACE00CA0E2A /* MachOProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */; };
 		F7F939F21C128CC600CA0E2A /* MachOSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F939F11C128CC600CA0E2A /* MachOSegment.swift */; };
@@ -92,8 +93,9 @@
 		F7E075401B9E716A0009B2BB /* NSScanner_Convenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSScanner_Convenience.swift; sourceTree = "<group>"; };
 		F7E075421B9E784A0009B2BB /* Punycode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Punycode.swift; sourceTree = "<group>"; };
 		F7F876A31C154F6000C847AB /* MachPerformanceTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachPerformanceTest.swift; sourceTree = "<group>"; };
+		F7F876A91C174C9300C847AB /* MachOLinkerCommands.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MachOLinkerCommands.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F7F939ED1C12881C00CA0E2A /* MachOSymbolTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSymbolTable.swift; sourceTree = "<group>"; };
-		F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOProtocols.swift; sourceTree = "<group>"; };
+		F7F939EF1C128ACE00CA0E2A /* MachOProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MachOProtocols.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		F7F939F11C128CC600CA0E2A /* MachOSegment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSegment.swift; sourceTree = "<group>"; };
 		F7F939F31C12955300CA0E2A /* MachOSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOSection.swift; sourceTree = "<group>"; };
 		F7F939F51C12A18200CA0E2A /* MachOBindEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MachOBindEntry.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 				F7F939F11C128CC600CA0E2A /* MachOSegment.swift */,
 				F7F939F31C12955300CA0E2A /* MachOSection.swift */,
 				F7F939F51C12A18200CA0E2A /* MachOBindEntry.swift */,
+				F7F876A91C174C9300C847AB /* MachOLinkerCommands.swift */,
 				F7F93A041C137F9800CA0E2A /* SwiftMachOSymbolScanner.swift */,
 			);
 			name = MachO;
@@ -360,6 +363,7 @@
 				F79558C81BAE71EE00F663DD /* ObjCProperty.swift in Sources */,
 				F7B3F85D1B6BE8C80080CFAB /* PeekingGenerator.swift in Sources */,
 				F79558BC1BAE59E600F663DD /* SwiftObjCClassMetadata.swift in Sources */,
+				F7F876AA1C174C9300C847AB /* MachOLinkerCommands.swift in Sources */,
 				F7E075431B9E784A0009B2BB /* Punycode.swift in Sources */,
 				F711C4621BAE2FA400022291 /* SwiftMetadata.swift in Sources */,
 				F79558B81BAE516200F663DD /* SwiftProtocolMetadata.swift in Sources */,

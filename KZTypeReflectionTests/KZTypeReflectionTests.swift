@@ -8,6 +8,7 @@
 
 import XCTest
 @testable import KZTypeReflection
+import Foundation
 
 class KZTypeReflectionTests: XCTestCase {
     

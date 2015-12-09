@@ -29,9 +29,11 @@ public class MachOSymbolTable {
     
     public let moduleName: String
     public let baseOffset: UnsafePointer<Void>
+    public var segments = [MachOSegment]()
     
     var dynamicSymbols = [String: DynamicReference]()
     var symbolsToAddresses = [String: UnsafePointer<Void>]()
+    var indirectSymbolsToAddresses = [String: UnsafePointer<Void>]()
     
     let is64: Bool
     
@@ -51,7 +53,11 @@ public class MachOSymbolTable {
     var undefinedSymbolsByName = [String: Int]()
     
     public var onlySwiftSymbols = false
+    public var onlySwiftMetadataSymbols = false
     
+    public let offset: Int
+    
+    /*
     convenience public init?() {
         self.init(address:unsafeBitCast(MachOSymbolTable.self, UnsafePointer<Void>.self))
     }
@@ -77,10 +83,11 @@ public class MachOSymbolTable {
     convenience public init(dlinfo: dl_info) {
         self.init(baseAddress: dlinfo.dli_fbase)
     }
-    
-    public init(baseAddress: UnsafePointer<Void>) {
+    */
+    public init(baseAddress: UnsafePointer<Void>, offset: Int) {
         self.moduleName = ""
         self.baseOffset = baseAddress
+        self.offset = offset
         
         let magic = UnsafePointer<UInt32>(self.baseOffset).memory
         if magic == mach_header.magicValue {
@@ -106,7 +113,6 @@ public class MachOSymbolTable {
     }
     
     func processCommands(numberOfCommands: UInt32, offset: UnsafePointer<Void>) {
-        var segments = [MachOSegment]()
         // save these for after - need the segments completely loaded
         var dyldInfos = [dyld_info_command]()
         
@@ -114,78 +120,121 @@ public class MachOSymbolTable {
         
         for _ in 0 ..< numberOfCommands {
             let cmd = UnsafePointer<load_command>(cmdPtr).memory
+            let type = LoadCommandType(value: cmd.cmd & ~LC_REQ_DYLD)
             
-            switch(unsafeBitCast(cmd.cmd, Int32.self)) {
-            // LC_DYSYMTAB
-            case dysymtab_command.commandValue:
-                self.process_LC_DYSYMTAB(UnsafePointer<dysymtab_command>(cmdPtr))
-                break;
+            
+            switch(type) {
+            case .UNKNOWN(let identifier):
+                break
                 
-            // LC_SYMTAB
-            case symtab_command.commandValue:
+            case .SEGMENT:
+                let seg = UnsafePointer<segment_command>(cmdPtr)
+                segments.append(MachOSegment(command: seg, baseAddress: self.baseOffset))
+                break
+                
+            case .SYMTAB:
                 if is64 {
                     self.process_LC_SYMTAB(nlist_64_real.self, cmd: UnsafePointer<symtab_command>(cmdPtr))
                 } else {
                     self.process_LC_SYMTAB(nlist_real.self, cmd: UnsafePointer<symtab_command>(cmdPtr))
                 }
-                
-                break;
-                
-            // LC_SEGMENT
-            case segment_command.commandValue:
-                let seg = UnsafePointer<segment_command>(cmdPtr)
-                segments.append(MachOSegment(command: seg, baseAddress: self.baseOffset))
                 break
                 
-            // LC_SEGMENT_64
-            case segment_command_64.commandValue:
+            case .SYMSEG:
+                break
+            case .THREAD:
+                break
+            case .UNIXTHREAD:
+                break
+            case .LOADFVMLIB:
+                break
+            case .IDFVMLIB:
+                break
+            case .IDENT:
+                break
+            case .FVMFILE:
+                break
+            case .PREPAGE:
+                break
+            case .DYSYMTAB:
+                self.process_LC_DYSYMTAB(UnsafePointer<dysymtab_command>(cmdPtr))
+                break
+                
+            case .LOAD_DYLIB:
+                _process_LC_LOAD_DYLIB(UnsafePointer<dylib_command>(cmdPtr))
+                break
+            case .ID_DYLIB:
+                break
+            case .LOAD_DYLINKER:
+                break
+            case .ID_DYLINKER:
+                break
+            case .PREBOUND_DYLIB:
+                break
+            case .ROUTINES:
+                break
+            case .SUB_FRAMEWORK:
+                break
+            case .SUB_UMBRELLA:
+                break
+            case .SUB_CLIENT:
+                break
+            case .SUB_LIBRARY:
+                break
+            case .TWOLEVEL_HINTS:
+                break
+            case .PREBIND_CKSUM:
+                break
+            case .SEGMENT_64:
                 let seg = UnsafePointer<segment_command_64>(cmdPtr)
                 segments.append(MachOSegment(command: seg, baseAddress: self.baseOffset))
                 break
                 
-            // LC_DYLD_INFO
-            case dyld_info_command.commandValue:
+            case .ROUTINES_64:
+                break
+            case .UUID:
+                break
+            case .CODE_SIGNATURE:
+                break
+            case .SEGMENT_SPLIT_INFO:
+                break
+            case .LAZY_LOAD_DYLIB:
+                break
+            case .ENCRYPTION_INFO:
+                break
+            case .DYLD_INFO:
                 dyldInfos.append(UnsafePointer<dyld_info_command>(cmdPtr).memory)
                 break
-                
-            case LC_LOAD_DYLINKER:
-                break;
-                
-            case LC_UUID:
-                break;
-                
-            case LC_VERSION_MIN_IPHONEOS:
-                break;
-                
-            case LC_SOURCE_VERSION:
-                break;
-            
-            // LC_DYLD_INFO
-            case dylib_command.commandValue:
-                _process_LC_LOAD_DYLIB(UnsafePointer<dylib_command>(cmdPtr))
-                break;
-                
-            case LC_DYLD_ENVIRONMENT:
-                break;
-                
-            case LC_DATA_IN_CODE:
-                break;
-                
-            case LC_FUNCTION_STARTS:
-                break;
-                
-            case LC_DYLIB_CODE_SIGN_DRS:
-                break;
-
-            default:
+            case .VERSION_MIN_MACOSX:
                 break
-                
+            case .VERSION_MIN_IPHONEOS:
+                break
+            case .FUNCTION_STARTS:
+                break
+            case .DYLD_ENVIRONMENT:
+                break
+            case .DATA_IN_CODE:
+                break
+            case .SOURCE_VERSION:
+                break
+            case .DYLIB_CODE_SIGN_DRS:
+                break
+            case .ENCRYPTION_INFO_64:
+                break
+            case .LINKER_OPTION:
+                break
+            case .LINKER_OPTIMIZATION_HINT:
+                break
+            case .VERSION_MIN_TVOS:
+                break
+            case .VERSION_MIN_WATCHOS:
+                break
             }
             cmdPtr += Int(cmd.cmdsize)
         }
         
         for dyldInfo in dyldInfos {
-            self.processDyldInfoCommand(dyldInfo, segments: segments)
+            //self.processDyldInfoCommand(dyldInfo, segments: segments)
         }
         
     }
@@ -279,13 +328,13 @@ public class MachOSymbolTable {
         let entries = UnsafePointer<T>(self.symbolTable)
         for i in 0 ..< Int(c.nsyms) {
             let entry = entries[i]
+            
+            let symType = entry.symbolType
+            
     
-//            let type = (Int32(entry.n_type) & N_TYPE)
-//            let ext = (Int32(entry.n_type) & N_EXT) != 0
-//            
-//            if type == N_UNDF || ext {
-//                continue
-//            }
+            if case SymbolType.UNDF = symType {
+                continue
+            }
             
             guard let name = getString(entry.n_strx) else {
                 continue
@@ -296,8 +345,31 @@ public class MachOSymbolTable {
             }
             
             let ptr = UnsafePointer<Void>(bitPattern: entry.n_value)
+            if ptr == nil {
+                continue
+            }
             
-            self.symbolsToAddresses[name] = ptr
+            //print("\(entry.symbolType) - \(entry.isReferenceToWeak) - \(entry.isExternal) - \(entry.isPrivateExternal) - \(entry.isReferencedDynamically) - \(name)")
+            
+            if name == "__MdSi" {
+                print("OK")
+            }
+            if entry.isReferenceToWeak {
+                if let _ = symbolsToAddresses[name] {
+                    //print("ok")
+                } else if let _ = indirectSymbolsToAddresses[name] {
+                    //print("OK")
+                } else {
+                    self.indirectSymbolsToAddresses[name] = ptr
+                }
+            } else {
+                if let _ = symbolsToAddresses[name] {
+                    //print("OK")
+                    
+                } else {
+                    self.symbolsToAddresses[name] = ptr
+                }
+            }
         }
         
     }
@@ -309,11 +381,16 @@ public class MachOSymbolTable {
         }
         
         if onlySwiftSymbols {
-            if strncmp(ptr, "__T", 3) != 0 {
+            if onlySwiftMetadataSymbols {
+                if strncmp(ptr, "__TMd", 5) != 0 && strncmp(ptr, "__TMa", 5) != 0 {
+                    return nil
+                }
+            } else if strncmp(ptr, "__T", 3) != 0 {
                 return nil
             }
         }
-        return String.fromCString(ptr)
+        let retval = String.fromCString(ptr)!
+        return retval
     }
     
     public func addressOfSymbol(name: String) -> UnsafePointer<Void>? {
@@ -321,7 +398,19 @@ public class MachOSymbolTable {
     }
     
     public func forEachSymbol(each: (String, UnsafePointer<Void>) -> Void) {
-        self.symbolsToAddresses.forEach { each($0, $1) }
+        self.symbolsToAddresses.forEach { each($0, $1.advancedBy(self.offset)) }
+    }
+    
+    public func forEachIndirectSymbol(each: (String, UnsafePointer<Void>) -> Void) {
+        self.indirectSymbolsToAddresses.forEach {
+            let ptr = UnsafePointer<UnsafePointer<Void>>($1.advancedBy(self.offset))
+            let retval = ptr[1]
+            if retval == nil {
+                return
+            }
+            each($0, retval)
+
+        }
     }
     
 }

@@ -7,7 +7,7 @@
 //
 
 public class SwiftSymbolDecoderUnsafe {
-    private static var _swiftBuiltinMap: [Character: String] = {
+    private static var swiftBuiltinMap: [Character: String] = {
         var retval: [Character: String] = [
             // namespaces
             "o" : "ObjectiveC",
@@ -32,7 +32,7 @@ public class SwiftSymbolDecoderUnsafe {
         return retval
     }()
     
-    private static var _builtinMap: [Character: String] = [
+    private static var builtinMap: [Character: String] = [
         "b" : "Builtin.BridgeObject",
         "o" : "Builtin.NativeObject",
         "i" : "Builtin.Int",
@@ -45,46 +45,36 @@ public class SwiftSymbolDecoderUnsafe {
         //UnknownObject
         //NativeObject
     ]
+
     
-    private static var _binaryScanner: SwiftMachoOSymbolScanner = {
-        let retval = SwiftMachoOSymbolScanner()
-        retval.scanAll()
-        return retval
-    }()
-    
-    
-    public var useBinaryScanner = true
-    public var delegate: SwiftSymbolDecoderDelegate!
-    
-    private let _scanner : NSScanner
-    private var _substitutions = [String]()
+    private let stringScanner : NSScanner
+    private var substitutions = [String]()
     public var genericArguments = [Any.Type]()
     
     public required init(input: String) {
-        _scanner = NSScanner(string: input, caseSensitive: true)
-        self.delegate = SwiftTypeRegistry.sharedRegistry
+        stringScanner = NSScanner(string: input, caseSensitive: true)
     }
     
     private func scanIndex() -> Int? {
-        if _scanner.scanString("_") {
+        if stringScanner.scanString("_") {
             return 0
         }
         
-        guard let num = _scanner.scanInteger() else {
+        guard let num = stringScanner.scanInteger() else {
             return nil
         }
         
-        precondition(_scanner.scanString("_"))
+        precondition(stringScanner.scanString("_"))
         
         return num + 1
     }
     
     private func addSubstitution(string: String) {
-        _substitutions.append(string)
+        substitutions.append(string)
     }
     
     private func substitution(index: Int) -> String {
-        return _substitutions[index]
+        return substitutions[index]
     }
     
     private func scanSubstitution() -> String? {
@@ -95,7 +85,7 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     private func scanGenericSubstitution() -> String {
-        precondition(_scanner.scanString("q"))
+        precondition(stringScanner.scanString("q"))
         
         guard let index = scanIndex() else {
             preconditionFailure()
@@ -110,7 +100,7 @@ public class SwiftSymbolDecoderUnsafe {
     
     
     public func scanSymbol() -> SwiftSymbol? {
-        if !_scanner.scanString("_T") {
+        if !stringScanner.scanString("_T") {
             return nil
         }
         
@@ -118,19 +108,19 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     public func scanFunctionDeclaration() -> SwiftSymbol {
-        precondition(_scanner.scanString("F"))
+        precondition(stringScanner.scanString("F"))
         
         let type1 = self.typeForName(scanTypeName()!)
         
         
-        guard let peekCh = _scanner.peekCharacter() else {
+        guard let peekCh = stringScanner.peekCharacter() else {
             preconditionFailure()
         }
         
         switch(peekCh) {
         case "g":
-            _scanner.nextCharacter()
-            let name = _scanner.scanSwiftIdentifier()!
+            stringScanner.nextCharacter()
+            let name = stringScanner.scanSwiftIdentifier()!
             let type2 = self.typeForName(scanType()!)
             
             return SwiftSymbol.Getter(
@@ -141,8 +131,8 @@ public class SwiftSymbolDecoderUnsafe {
             
             
         case "s":
-            _scanner.nextCharacter()
-            let name = _scanner.scanSwiftIdentifier()!
+            stringScanner.nextCharacter()
+            let name = stringScanner.scanSwiftIdentifier()!
             let type = scanType()!
             return SwiftSymbol.Setter(
                 instanceType: type1,
@@ -151,8 +141,8 @@ public class SwiftSymbolDecoderUnsafe {
             )
             
         case "m":
-            _scanner.nextCharacter()
-            let name = _scanner.scanSwiftIdentifier()!
+            stringScanner.nextCharacter()
+            let name = stringScanner.scanSwiftIdentifier()!
             let type = scanType()!
             
             return SwiftSymbol.MaterializeForSet(
@@ -162,31 +152,31 @@ public class SwiftSymbolDecoderUnsafe {
             )
             
         case "c":
-            _scanner.nextCharacter()
-            precondition(_scanner.scanString("f"))
-            let curried = scanType()!
+            stringScanner.nextCharacter()
+            precondition(stringScanner.scanString("f"))
+            let _ = scanType()!
             let F = scanFunctionType("F")
             return SwiftSymbol.Constructor(instanceType: type1,  parameters: F.parameters)
             
         case "C":
-            _scanner.nextCharacter()
-            precondition(_scanner.scanString("f"))
-            let curried = scanType()!
+            stringScanner.nextCharacter()
+            precondition(stringScanner.scanString("f"))
+            let _ = scanType()!
             let F = scanFunctionType("F")
             return SwiftSymbol.AllocatingConstructor(instanceType: type1,  parameters: F.parameters)
             
         case "d":
-            _scanner.nextCharacter()
+            stringScanner.nextCharacter()
             return SwiftSymbol.Destructor(instanceType: type1)
             
         case "D":
-            _scanner.nextCharacter()
+            stringScanner.nextCharacter()
             return SwiftSymbol.DeallocatingDestructor(instanceType: type1)
             
         default:
-            let name = _scanner.scanSwiftIdentifier()!
-            let constraints = scanGenericConstraints()
-            precondition(_scanner.scanString("f"))
+            let name = stringScanner.scanSwiftIdentifier()!
+            let _ = scanGenericConstraints()
+            precondition(stringScanner.scanString("f"))
             let curried = scanType()!
             let F = scanFunctionType("F")
             
@@ -200,13 +190,13 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     private func scanMangledTypeName() -> String? {
-        let start = _scanner.scanLocation
+        let start = stringScanner.scanLocation
         
-        let name = self.scanType()
+        let _ = self.scanType()
         
-        let end = _scanner.scanLocation
+        let end = stringScanner.scanLocation
         
-        let chars = _scanner.string.characters
+        let chars = stringScanner.string.characters
         let mangledName = String(chars.dropFirst(start).dropLast(chars.count - end))
         
         
@@ -218,7 +208,7 @@ public class SwiftSymbolDecoderUnsafe {
     
     
     public func scanType() -> String? {
-        guard let ch = _scanner.peekCharacter() else {
+        guard let ch = stringScanner.peekCharacter() else {
             return nil
         }
         
@@ -240,7 +230,7 @@ public class SwiftSymbolDecoderUnsafe {
             
             
         case "T":
-            if _scanner.scanString("T_") {
+            if stringScanner.scanString("T_") {
                 return "()";
             }
             preconditionFailure()
@@ -284,7 +274,7 @@ public class SwiftSymbolDecoderUnsafe {
             return scanProtocol()
             
         case "R":
-            _scanner.scanString("R")
+            stringScanner.scanString("R")
             return "Swift.UnsafeMutablePointer" + "<" + scanType()! + ">"
         default:
             preconditionFailure()
@@ -292,7 +282,7 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     public func scanTypeName() -> String? {
-        guard let ch = _scanner.peekCharacter() else {
+        guard let ch = stringScanner.peekCharacter() else {
             return nil
         }
         
@@ -330,16 +320,16 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     func scanTypeNameSegment(char: String) -> String {
-        precondition(_scanner.scanString(char))
+        precondition(stringScanner.scanString(char))
         
         let piece1: String
         if let typeName = scanTypeName() {
             piece1 = typeName
         } else {
-            piece1 = _scanner.scanSwiftIdentifierMangled()!
+            piece1 = stringScanner.scanSwiftIdentifierMangled()!
             addSubstitution(piece1)
         }
-        let piece2 = _scanner.scanSwiftIdentifierMangled()!
+        let piece2 = stringScanner.scanSwiftIdentifierMangled()!
         
         let retval = char + "\(piece1)\(piece2)"
         
@@ -349,18 +339,18 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     func scanSwiftTypeName() -> String {
-        precondition(_scanner.scanString("S"))
+        precondition(stringScanner.scanString("S"))
         
         if let subs = scanSubstitution() {
             return subs
         }
         
-        guard let ch = _scanner.nextCharacter() else {
+        guard let ch = stringScanner.nextCharacter() else {
             preconditionFailure()
         }
         
         
-        guard let _ = SwiftSymbolDecoderUnsafe._swiftBuiltinMap[ch] else {
+        guard let _ = SwiftSymbolDecoderUnsafe.swiftBuiltinMap[ch] else {
             preconditionFailure()
         }
         
@@ -368,20 +358,20 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     func scanBuiltinTypeName() -> String {
-        precondition(_scanner.scanString("B"))
+        precondition(stringScanner.scanString("B"))
         
-        guard let ch = _scanner.nextCharacter() else {
+        guard let ch = stringScanner.nextCharacter() else {
             preconditionFailure()
         }
         
         
-        guard var retval = SwiftSymbolDecoderUnsafe._builtinMap[ch] else {
+        guard var retval = SwiftSymbolDecoderUnsafe.builtinMap[ch] else {
             preconditionFailure()
         }
         
         
         if retval == "i" || retval == "f" {
-            let bits = _scanner.scanInteger()!
+            let bits = stringScanner.scanInteger()!
             retval = "\(retval)\(bits)"
         }
         
@@ -390,11 +380,11 @@ public class SwiftSymbolDecoderUnsafe {
     
     
     func scanFunctionType(type: String) -> SwiftFunction {
-        precondition(_scanner.scanString(type))
+        precondition(stringScanner.scanString(type))
         
         var params: [SwiftParameter]
         
-        if(_scanner.peekString("T")) {
+        if(stringScanner.peekString("T")) {
             params = scanTupleType();
         } else {
             let input = typeForName(scanType()!)
@@ -406,17 +396,17 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     func scanMetaType() -> String {
-        precondition(_scanner.scanString("M"))
+        precondition(stringScanner.scanString("M"))
         
         return scanTypeName()! + ".Type"
     }
     
     func scanTupleType() -> [SwiftParameter] {
-        precondition(_scanner.scanString("T"))
+        precondition(stringScanner.scanString("T"))
         
         var pieces = [SwiftParameter]()
-        while !_scanner.scanString("_") {
-            let identifier = _scanner.scanSwiftIdentifierMangled() ?? ""
+        while !stringScanner.scanString("_") {
+            let identifier = stringScanner.scanSwiftIdentifierMangled() ?? ""
             let type = typeForName(scanType()!)
             pieces.append(SwiftParameter(name: identifier, type: type))
         }
@@ -426,12 +416,12 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     func scanGenericType() -> String {
-        precondition(_scanner.scanString("G"))
+        precondition(stringScanner.scanString("G"))
         
         let type = scanType()!
         
         var types = [String]()
-        while !_scanner.scanString("_") {
+        while !stringScanner.scanString("_") {
             let type = scanType()!
             
             types.append(type)
@@ -447,15 +437,15 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     private func scanGenericConstraints() -> String {
-        if !_scanner.scanString("u") {
+        if !stringScanner.scanString("u") {
             return ""
         }
         
-        if let num = _scanner.scanInteger() {
-            precondition(_scanner.scanString("_"))
+        if let _ = stringScanner.scanInteger() {
+            precondition(stringScanner.scanString("_"))
         }
         
-        let ch = _scanner.nextCharacter()!
+        let ch = stringScanner.nextCharacter()!
         if ch == "r" {
             return ""
         }
@@ -464,14 +454,14 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     private func scanProtocol() -> String {
-        precondition(_scanner.scanString("P"))
+        precondition(stringScanner.scanString("P"))
         
-        if _scanner.peekString("M") {
+        if stringScanner.peekString("M") {
             return scanMetaType()
         }
         
         var types = [String]()
-        while !_scanner.scanString("_") {
+        while !stringScanner.scanString("_") {
             let typename = scanProtocolName()
             
             types.append(typename)
@@ -498,14 +488,14 @@ public class SwiftSymbolDecoderUnsafe {
     
     private func scanProtocolName() -> String {
         var retval: String
-        if _scanner.peekString("S") {
+        if stringScanner.peekString("S") {
             retval = scanSwiftTypeName()
         } else {
-            retval = _scanner.scanSwiftIdentifier()!
+            retval = stringScanner.scanSwiftIdentifier()!
         }
         
         if !retval.containsString(".") {
-            retval += "." + _scanner.scanSwiftIdentifier()!
+            retval += "." + stringScanner.scanSwiftIdentifier()!
         }
         
         addSubstitution(retval)
@@ -513,29 +503,11 @@ public class SwiftSymbolDecoderUnsafe {
     }
     
     private func typeForName(name: String) -> Any.Type {
-        typealias MetadataFunc = (@convention(c) () -> UnsafePointer<Void>)
-        
-        if let mfunc = SwiftSymbolDecoderUnsafe._binaryScanner.addressOf("__TMa\(name)", type: MetadataFunc.self) {
-            let type = unsafeBitCast(mfunc(), Any.Type.self)
-            return type
-        } else {
-            switch(name) {
-            case "Si":
-                return Int.self
-            default:
-                break
-            }
+        guard let retval = SwiftMachoOSymbolScanner.sharedScanner.findTypeMetadata(name) else {
+            preconditionFailure("could not find metadata for type \(name)")
         }
         
-        if let direct = SwiftSymbolDecoderUnsafe._binaryScanner.addressOf("__TMd\(name)", type: UnsafePointer<Void>.self) {
-            //let test = swiftMetadataForType(Int.self)
-            //var indirect = UnsafePointer<Void>(bitPattern: UnsafePointer<Int>(direct)[0])
-            let type = unsafeBitCast(direct, Any.Type.self)
-            print(type)
-            return type
-        } else {
-            preconditionFailure()
-        }
+        return retval
     }
     
     private func nameForType(type: Any.Type) -> String {

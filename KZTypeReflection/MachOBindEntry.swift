@@ -12,7 +12,7 @@ import MachO
 public struct MachOBindEntry {
     public var segmentIndex = Int()
     public var flags = Int()
-    public var offset = UInt64()
+    public var offset = UInt()
     public var type = Int()
     public var libraryOrdinal = Int()
     public var symbolName = String()
@@ -78,17 +78,17 @@ public struct MachOBindEntry {
                 
             case BIND_OPCODE_DO_BIND:
                 retval.append(entry)
-                entry.offset += UInt64(pointerSize)
+                entry.offset += UInt(pointerSize)
                 break
                 
             case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
                 retval.append(entry)
-                entry.offset += stream.readULEB128() + UInt64(pointerSize)
+                entry.offset += stream.readULEB128() + UInt(pointerSize)
                 break
                 
             case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
                 retval.append(entry)
-                entry.offset += UInt64(Int(imm) * pointerSize + pointerSize)
+                entry.offset += UInt(Int(imm) * pointerSize + pointerSize)
                 break
                 
             case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB:
@@ -96,7 +96,7 @@ public struct MachOBindEntry {
                 let skip = stream.readULEB128()
                 for _ in 0 ..< count {
                     retval.append(entry)
-                    entry.offset += UInt64(pointerSize)
+                    entry.offset += UInt(pointerSize)
                     entry.offset += skip
                 }
                 break
@@ -113,24 +113,51 @@ public struct MachOBindEntry {
     }
     
 }
+/*
+addr_t result = 0;
+uint8_t *p = *ptr;
+uint8_t bit;
+unsigned int shift = 0;
+do {
+    if(p >= (uint8_t *) end) die("uleb128 overrun");
+    bit = *p++;
+    addr_t k = bit & 0x7f;
+    // 0x0051 BIND_OPCODE_ADD_ADDR_ULEB(0xFFFFFFF8)
+    // the argument is a lie, it's actually 64 bits of fff, which overflows here
+    // it should just be sleb, but ...
+    //if(shift >= 8*sizeof(addr_t) || ((k << shift) >> shift) != k) die("uleb128 too big");
+    if(shift < sizeof(addr_t) * 8) {
+        result |= k << shift;
+    }
+    shift += 7;
+} while(bit & 0x80);
+if(is_signed && (bit & 0x40)) {
+    result |= ~(((addr_t) 0) << shift);
+}
+*ptr = p;
+return result;
+*/
 
 private extension NSInputStream {
-    @nonobjc func readULEB128() -> UInt64 {
-        var retval = UInt64()
-        var bits = 0
+    @nonobjc func readULEB128() -> UInt {
+        var retval = UInt()
+        var shift = UInt()
         
         var byte = UInt8()
         for(;;) {
             let readValue = self.read(&byte, maxLength: sizeof(UInt8.self))
             precondition(readValue == 1, "unexpected end of stream")
             
-            retval = retval | (UInt64(byte & 0x7F) << UInt64(bits))
+            let k = UInt(byte & 0x7F)
+            if shift < UInt(sizeof(UInt.self)) * 8 {
+                retval |= ( k << shift)
+            }
             
             if (byte & 0x80) == 0 {
                 break
             }
             
-            bits += 7
+            shift += 7
             precondition(bits < 64, "encoded int too long")
         }
         
