@@ -113,30 +113,6 @@ public struct MachOBindEntry {
     }
     
 }
-/*
-addr_t result = 0;
-uint8_t *p = *ptr;
-uint8_t bit;
-unsigned int shift = 0;
-do {
-    if(p >= (uint8_t *) end) die("uleb128 overrun");
-    bit = *p++;
-    addr_t k = bit & 0x7f;
-    // 0x0051 BIND_OPCODE_ADD_ADDR_ULEB(0xFFFFFFF8)
-    // the argument is a lie, it's actually 64 bits of fff, which overflows here
-    // it should just be sleb, but ...
-    //if(shift >= 8*sizeof(addr_t) || ((k << shift) >> shift) != k) die("uleb128 too big");
-    if(shift < sizeof(addr_t) * 8) {
-        result |= k << shift;
-    }
-    shift += 7;
-} while(bit & 0x80);
-if(is_signed && (bit & 0x40)) {
-    result |= ~(((addr_t) 0) << shift);
-}
-*ptr = p;
-return result;
-*/
 
 private extension NSInputStream {
     @nonobjc func readULEB128() -> UInt {
